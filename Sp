@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cat and Mouse Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="game-area">
+    <div id="cat" class="cat"></div>
+    <div id="mouse" class="mouse"></div>
+    <div id="cheese" class="cheese"></div>
+  </div>
+  <h3 id="score">Score: 0</h3>
+  <script src="script.js"></script>
+</body>
+</html>
+/* style.css */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: Arial, sans-serif;
+}
+
+.game-area {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  background-color: #f5f5f5;
+  border: 2px solid #333;
+  margin-top: 20px;
+}
+
+.cat, .mouse, .cheese {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+}
+
+.cat {
+  background-color: red;
+  border-radius: 50%;
+}
+
+.mouse {
+  background-color: blue;
+  border-radius: 50%;
+}
+
+.cheese {
+  background-color: yellow;
+  border-radius: 50%;
+}
+
+#score {
+  margin-top: 10px;
+  font-size: 1.2em;
+}
+// script.js
+const gameArea = document.querySelector(".game-area");
+const cat = document.getElementById("cat");
+const mouse = document.getElementById("mouse");
+const cheese = document.getElementById("cheese");
+const scoreDisplay = document.getElementById("score");
+let score = 0;
+
+// Set initial positions
+let catPos = { x: 0, y: 0 };
+let mousePos = { x: 140, y: 140 };
+let cheesePos = randomPosition();
+
+// Function to set a random position
+function randomPosition() {
+  const x = Math.floor(Math.random() * 15) * 20;
+  const y = Math.floor(Math.random() * 15) * 20;
+  return { x, y };
+}
+
+// Update positions in the game area
+function updatePositions() {
+  cat.style.left = `${catPos.x}px`;
+  cat.style.top = `${catPos.y}px`;
+  mouse.style.left = `${mousePos.x}px`;
+  mouse.style.top = `${mousePos.y}px`;
+  cheese.style.left = `${cheesePos.x}px`;
+  cheese.style.top = `${cheesePos.y}px`;
+}
+
+// Move cat towards mouse (simple AI)
+function moveCat() {
+  if (catPos.x < mousePos.x) catPos.x += 20;
+  else if (catPos.x > mousePos.x) catPos.x -= 20;
+
+  if (catPos.y < mousePos.y) catPos.y += 20;
+  else if (catPos.y > mousePos.y) catPos.y -= 20;
+}
+
+// Check for collisions
+function checkCollisions() {
+  // If mouse reaches cheese
+  if (mousePos.x === cheesePos.x && mousePos.y === cheesePos.y) {
+    score++;
+    scoreDisplay.textContent = `Score: ${score}`;
+    cheesePos = randomPosition();
+  }
+
+  // If cat catches mouse
+  if (catPos.x === mousePos.x && catPos.y === mousePos.y) {
+    alert(`Game Over! Your Score: ${score}`);
+    resetGame();
+  }
+}
+
+// Reset game
+function resetGame() {
+  score = 0;
+  scoreDisplay.textContent = `Score: 0`;
+  mousePos = { x: 140, y: 140 };
+  catPos = { x: 0, y: 0 };
+  cheesePos = randomPosition();
+}
+
+// Move mouse with arrow keys
+document.addEventListener("keydown", (e) => {
+  switch (e.key) {
+    case "ArrowUp":
+      if (mousePos.y > 0) mousePos.y -= 20;
+      break;
+    case "ArrowDown":
+      if (mousePos.y < 280) mousePos.y += 20;
+      break;
+    case "ArrowLeft":
+      if (mousePos.x > 0) mousePos.x -= 20;
+      break;
+    case "ArrowRight":
+      if (mousePos.x < 280) mousePos.x += 20;
+      break;
+  }
+  updatePositions();
+});
+
+// Game loop
+function gameLoop() {
+  moveCat();
+  updatePositions();
+  checkCollisions();
+  requestAnimationFrame(gameLoop);
+}
+
+// Start game
+updatePositions();
+gameLoop();
